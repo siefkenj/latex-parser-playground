@@ -1,0 +1,49 @@
+{
+    "name": "latex-parser-playground",
+    "version": "0.1.0",
+    "private": true,
+    "dependencies": {
+        "@testing-library/jest-dom": "^5.11.4",
+        "@testing-library/react": "^11.1.0",
+        "@testing-library/user-event": "^12.1.10",
+        "codemirror": "^5.61.1",
+        "comlink": "^4.3.1",
+        "globalthis": "^1.0.2",
+        "latex-ast-parser": "^0.5.5",
+        "pegjs": "0.10.0",
+        "prettier": "^2.3.1",
+        "prettier-plugin-latex": "^0.5.1",
+        "react": "^16.14.0",
+        "react-codemirror2": "^7.2.1",
+        "react-dom": "^16.14.0",
+        "react-scripts": "^4.0.3",
+        "react-select": "^4.3.1",
+        "react-split-pane": "^0.1.92",
+        "web-vitals": "^1.0.1",
+        "worker-loader": "^3.0.8"
+    },
+    "scripts": {
+        "start": "react-scripts start",
+        "build": "react-scripts build",
+        "test": "react-scripts test",
+        "eject": "react-scripts eject"
+    },
+    "eslintConfig": {
+        "extends": [
+            "react-app",
+            "react-app/jest"
+        ]
+    },
+    "browserslist": {
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version"
+        ]
+    }
+}
