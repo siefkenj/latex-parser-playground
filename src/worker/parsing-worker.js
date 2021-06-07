@@ -1,12 +1,12 @@
 import * as Comlink from "comlink";
 import * as latexAstParser from "latex-ast-parser";
 import prettierPluginLatex from "prettier-plugin-latex";
-import Prettier from "prettier/standalone";
+import Prettier from "prettier";
 
 import peg from "pegjs";
 
 // Needed to print the prettier Doc
-import prettierPluginBabel from "prettier/parser-babel";
+//import prettierPluginBabel from "prettier/parser-babel";
 import globalthisgenrator from "globalthis";
 
 /**

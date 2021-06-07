@@ -3,9 +3,9 @@
     "version": "0.1.0",
     "private": true,
     "dependencies": {
-        "@testing-library/jest-dom": "^5.11.4",
-        "@testing-library/react": "^11.1.0",
-        "@testing-library/user-event": "^12.1.10",
+        "@testing-library/jest-dom": "^5.13.0",
+        "@testing-library/react": "^11.2.7",
+        "@testing-library/user-event": "^13.1.9",
         "codemirror": "^5.61.1",
         "comlink": "^4.3.1",
         "globalthis": "^1.0.2",
@@ -19,7 +19,7 @@
         "react-scripts": "^4.0.3",
         "react-select": "^4.3.1",
         "react-split-pane": "^0.1.92",
-        "web-vitals": "^1.0.1",
+        "web-vitals": "^2.0.1",
         "worker-loader": "^3.0.8"
     },
     "scripts": {
