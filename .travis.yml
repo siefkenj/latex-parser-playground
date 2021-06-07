@@ -6,7 +6,6 @@ cache:
   - node_modules
 script:
   - npm install && npm run build
-  - npm run test
 before_install:
   - dpkg --compare-versions `npm -v` ge 7.10 || npm i -g npm@^7.10
   - npm --version

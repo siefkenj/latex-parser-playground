@@ -1,7 +1,7 @@
 import * as Comlink from "comlink";
 import * as latexAstParser from "latex-ast-parser";
 import prettierPluginLatex from "prettier-plugin-latex";
-//import Prettier from "prettier";
+import Prettier from "prettier/esm/standalone.mjs";
 
 import peg from "pegjs";
 
@@ -18,7 +18,6 @@ import globalthisgenrator from "globalthis";
  * @param [options={}] - Prettier options object (you can set `printWidth` here)
  * @returns formatted code
  */
-/*
 export function printPrettier(source = "", options = {}) {
     return Prettier.format(source, {
         printWidth: 80,
@@ -120,5 +119,3 @@ const obj = {
 };
 
 Comlink.expose(obj);
-
-*/
