@@ -5,6 +5,7 @@ import "codemirror/mode/javascript/javascript";
 import "codemirror/lib/codemirror.css";
 import SplitPane from "react-split-pane";
 import "codemirror/addon/display/rulers";
+import * as latexAstParser from "latex-ast-parser";
 
 import "./App.css";
 
@@ -17,6 +18,7 @@ import Worker from "worker-loader!./worker/parsing-worker";
 import { AstView } from "./ast-view";
 
 import { DebugView } from "./DebugView";
+import { HtmlView } from "./html-view.tsx";
 
 const DEFAULT_INPUT_TEXT = String.raw`\begin{enumerate}
     \item[55,4] Hi there
@@ -33,15 +35,26 @@ function App() {
     const [texInput, setTexInput] = React.useState(DEFAULT_INPUT_TEXT);
     const [texOutput, setTexOutput] = React.useState("");
     const [texParsed, setTexParsed] = React.useState([]);
+    const [htmlRender, setHtmlRender] = React.useState("");
     const [prettierDoc, setPrettierDoc] = React.useState("");
+    const [applyLints, setApplyLints] = React.useState(false);
+    const [showLints, setShowLints] = React.useState(false);
+    const [lints, setLints] = React.useState([]);
 
     React.useEffect(() => {
         switch (currDisplay) {
             case "formatted":
-                asyncFormatter
-                    .format(texInput, { printWidth: textWidth })
-                    .then((x) => setTexOutput(x))
-                    .catch((e) => console.warn("Failed to parse", e));
+                if (applyLints) {
+                    asyncFormatter
+                        .formatWithLints(texInput, { printWidth: textWidth })
+                        .then((x) => setTexOutput(x))
+                        .catch((e) => console.warn("Failed to parse", e));
+                } else {
+                    asyncFormatter
+                        .format(texInput, { printWidth: textWidth })
+                        .then((x) => setTexOutput(x))
+                        .catch((e) => console.warn("Failed to parse", e));
+                }
                 break;
             case "ast":
             case "json":
@@ -56,8 +69,24 @@ function App() {
                     .then((x) => setPrettierDoc(x))
                     .catch((e) => console.warn("Failed to parse", e));
                 break;
+            case "html":
+                asyncFormatter
+                    .formatAsHtml(texInput)
+                    .then((x) => setHtmlRender(x))
+                    .catch((e) => console.warn("Failed to parse", e));
+                break;
+            default:
+                break;
         }
-    }, [texInput, textWidth, currDisplay]);
+        if (showLints) {
+            asyncFormatter
+                .parse(texInput)
+                .then((ast) => {
+                    setLints(latexAstParser.tools.lintAll(ast));
+                })
+                .catch((e) => console.warn("Failed to parse", e));
+        }
+    }, [texInput, textWidth, currDisplay, showLints, applyLints]);
 
     let rightPanel = null;
     if (currDisplay === "formatted") {
@@ -88,6 +117,9 @@ function App() {
     if (currDisplay === "debug") {
         rightPanel = <DebugView texInput={texInput} textWidth={textWidth} />;
     }
+    if (currDisplay === "html") {
+        rightPanel = <HtmlView htmlInput={htmlRender} />;
+    }
 
     return (
         <div className="App">
@@ -111,7 +143,32 @@ function App() {
                         Prettier Doc (AST for formatting)
                     </option>
                     <option value="debug">Debug View</option>
-                </select>
+                    <option value="html">HTML View</option>
+                </select>{" "}
+                <label>
+                    Show Lints:{" "}
+                    <input
+                        name="showLints"
+                        type="checkbox"
+                        checked={showLints}
+                        onChange={(e) => setShowLints(e.target.checked)}
+                    />
+                </label>
+                <label>
+                    {" "}
+                    Apply Lints:{" "}
+                    <input
+                        name="applyLints"
+                        type="checkbox"
+                        checked={applyLints}
+                        onChange={(e) => {
+                            setApplyLints(e.target.checked);
+                            if (e.target.checked) {
+                                setShowLints(true);
+                            }
+                        }}
+                    />
+                </label>
             </div>
             <div className="tex-section">
                 <SplitPane split="vertical" minSize={200} defaultSize="50%">
@@ -130,6 +187,20 @@ function App() {
                     <div className="code-container">{rightPanel}</div>
                 </SplitPane>
             </div>
+            {showLints && (
+                <div className="footer">
+                    <h6>Lints: ({lints.length})</h6>
+                    <div className="lints-list-surround">
+                        <div className="lints-list">
+                            <ul className="lints">
+                                {lints.map((lint, i) => (
+                                    <li key={i}>{lint.description}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

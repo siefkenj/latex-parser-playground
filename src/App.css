@@ -154,3 +154,31 @@ body,
     display: flex;
     flex-direction: column;
 }
+
+.footer {
+    padding: 0.5em;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(max(20%, 8em));
+}
+
+.footer h6 {
+    margin: 0px;
+    padding: 0px;
+}
+ul.lints {
+    margin: 0px;
+    padding: 0px;
+    margin-left: 2em;
+}
+.lints li {
+    font-family: "Courier New", Courier, monospace;
+    color: rgb(175, 0, 0);
+}
+.lints-list-surround {
+    overflow: auto;
+}
+.lints-list {
+}

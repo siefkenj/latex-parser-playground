@@ -28,6 +28,27 @@ export function printPrettier(source = "", options = {}) {
     });
 }
 
+const prettierPluginLatexWithLint = {
+    ...prettierPluginLatex,
+    printers: {
+        "latex-ast": {
+            ...prettierPluginLatex.printers["latex-ast"],
+            preprocess: (ast) => {
+                return latexAstParser.tools.fixAllLints(ast);
+            },
+        },
+    },
+};
+export function printPrettierWithLints(source = "", options = {}) {
+    return Prettier.format(source, {
+        printWidth: 80,
+        useTabs: true,
+        ...options,
+        parser: "latex-parser",
+        plugins: [prettierPluginLatexWithLint],
+    });
+}
+
 // All these objects used to be exported together. They aren't anymore, but
 // we combine them for convenience.
 const latexParser = {
@@ -48,6 +69,18 @@ const obj = {
 
         return output;
     },
+    formatWithLints(texInput, options = {}) {
+        const output = printPrettierWithLints(texInput, options);
+
+        return output;
+    },
+    formatAsHtml(texInput, options = {}) {
+        let output = latexParser.parse(texInput, options);
+        output = latexAstParser.tools.fixAllLints(output);
+        output = latexAstParser.tools.convertToHtml(output, { wrapPars: true });
+
+        return latexParser.printRaw(output);
+    },
     parse(texInput, options = {}) {
         const output = latexParser.parse(texInput, options);
 
@@ -63,7 +96,7 @@ const obj = {
             parserSource: null,
         }
     ) {
-        const { parser: parserName, parserSource } = options;
+        const { parserSource } = options;
 
         // We are going to run PEG on an AST (instead of a string),
         // So first generate the AST

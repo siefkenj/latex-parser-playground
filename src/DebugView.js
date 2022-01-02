@@ -102,6 +102,8 @@ export function DebugView(props) {
                             console.warn("Failed to parse", e);
                         });
                     break;
+                default:
+                    break;
             }
         }
     }, [texInput, textWidth, currDisplay, displayCode.peggrammar]);
