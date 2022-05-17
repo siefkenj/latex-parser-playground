@@ -1,6 +1,6 @@
 import React from "react";
-import { printRaw } from "latex-ast-parser";
 import { console } from "globalthis/implementation";
+import { printRaw } from "@unified-latex/unified-latex-util-print-raw";
 
 function Captioned({ caption, children }) {
     return (

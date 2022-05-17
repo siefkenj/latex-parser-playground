@@ -1,13 +1,16 @@
 import * as Comlink from "comlink";
 import * as latexAstParser from "latex-ast-parser";
-import prettierPluginLatex from "prettier-plugin-latex";
+//import prettierPluginLatex from "prettier-plugin-latex";
 import Prettier from "prettier/esm/standalone.mjs";
+import { prettierPluginLatex } from "@unified-latex/unified-latex-prettier";
+import { parse } from "@unified-latex/unified-latex-util-parse";
 
 import peg from "pegjs";
 
 // Needed to print the prettier Doc
 import prettierPluginBabel from "prettier/parser-babel";
 import globalthisgenrator from "globalthis";
+import { printRaw } from "@unified-latex/unified-latex-util-print-raw";
 
 /**
  * Format `source` LaTeX code using Prettier to format/render
@@ -33,8 +36,12 @@ const prettierPluginLatexWithLint = {
     printers: {
         "latex-ast": {
             ...prettierPluginLatex.printers["latex-ast"],
-            preprocess: (ast) => {
-                return latexAstParser.tools.fixAllLints(ast);
+            preprocess: (ast, options) => {
+                // XXX For some reason the parsing isn't working right in prettier...so we will
+                // do it again ourselves. Very inefficient!
+                ast = parse(options.originalText);
+                const ret = latexAstParser.tools.fixAllLints(ast);
+                return ret;
             },
         },
     },
@@ -43,6 +50,7 @@ export function printPrettierWithLints(source = "", options = {}) {
     return Prettier.format(source, {
         printWidth: 80,
         useTabs: true,
+        useCache: false,
         ...options,
         parser: "latex-parser",
         plugins: [prettierPluginLatexWithLint],
@@ -55,8 +63,8 @@ const latexParser = {
     Prettier,
     prettierPluginLatex,
     printPrettier,
-    parse: latexAstParser.parse,
-    printRaw: latexAstParser.printRaw,
+    parse: parse,
+    printRaw: printRaw,
     astParsers: latexAstParser.astParsers,
 };
 

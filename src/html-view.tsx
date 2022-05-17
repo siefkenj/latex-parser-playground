@@ -1,14 +1,12 @@
 import React from "react";
 import { printRaw } from "latex-ast-parser";
-import { console } from "globalthis/implementation";
 import "katex/dist/katex.min.css";
 import renderMathInElement from "katex/dist/contrib/auto-render";
-import reactSelect from "react-select";
 import SplitPane from "react-split-pane";
 import { CodeMirrorPanel } from "./CodeMirrorPanel";
 import * as latexAstParser from "latex-ast-parser";
 import Prettier from "prettier/esm/standalone.mjs";
-import htmlParser from "prettier/parser-html"
+import htmlParser from "prettier/parser-html";
 
 function KatexRenderedHtml({ source }: { source: string }) {
     const renderedRef = React.useRef(null);
@@ -22,6 +20,8 @@ function KatexRenderedHtml({ source }: { source: string }) {
                     { left: "$", right: "$", display: false },
                     { left: "\\(", right: "\\)", display: false },
                 ],
+                //trust: true,
+                //strict: false,
             });
         }
     }, [renderedRef, source]);
@@ -41,7 +41,7 @@ export function HtmlView({ htmlInput, ...rest }) {
             printWidth: 80,
             useTabs: true,
             parser: "html",
-            plugins: [htmlParser]
+            plugins: [htmlParser],
         });
     }, [htmlInput]);
     return (
