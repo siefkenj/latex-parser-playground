@@ -19,6 +19,8 @@ import { AstView } from "./ast-view";
 
 import { DebugView } from "./DebugView";
 import { HtmlView } from "./html-view.tsx";
+import { filterProp } from "./filter-prop.ts";
+import { lintAll } from "./linter.ts";
 
 const DEFAULT_INPUT_TEXT = String.raw`\section*{Really Cool Math}Below you'll find some really cool math.
 
@@ -84,7 +86,7 @@ function App() {
             asyncFormatter
                 .parse(texInput)
                 .then((ast) => {
-                    //setLints(latexAstParser.tools.lintAll(ast));
+                    setLints(lintAll(ast));
                 })
                 .catch((e) => console.warn("Failed to parse", e));
         }
@@ -106,7 +108,11 @@ function App() {
     if (currDisplay === "json") {
         rightPanel = (
             <CodeMirror
-                value={JSON.stringify(texParsed, null, 4)}
+                value={JSON.stringify(
+                    filterProp(texParsed, "position"),
+                    null,
+                    4
+                )}
                 options={{ mode: "javascript" }}
             />
         );

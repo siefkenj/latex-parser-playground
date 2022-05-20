@@ -12,6 +12,7 @@ import "./App.css";
 import * as Comlink from "comlink";
 /* eslint-disable import/no-webpack-loader-syntax */
 import Worker from "worker-loader!./worker/parsing-worker";
+import { filterProp } from "./filter-prop.ts";
 
 // Our worker that will format code in another thread.
 const worker = new Worker();
@@ -59,7 +60,11 @@ export function DebugView(props) {
                         .then((x) =>
                             setDisplayCode({
                                 ast: {
-                                    code: JSON.stringify(x, null, 4),
+                                    code: JSON.stringify(
+                                        filterProp(x, "position"),
+                                        null,
+                                        4
+                                    ),
                                     options: { mode: "javascript" },
                                 },
                             })
@@ -87,7 +92,11 @@ export function DebugView(props) {
                         .then((x) =>
                             setDisplayCode({
                                 parsedast: {
-                                    code: JSON.stringify(x, null, 4),
+                                    code: JSON.stringify(
+                                        filterProp(x, "position"),
+                                        null,
+                                        4
+                                    ),
                                     options: { mode: "javascript" },
                                 },
                             })
