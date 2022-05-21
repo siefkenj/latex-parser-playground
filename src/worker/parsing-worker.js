@@ -1,13 +1,16 @@
 import * as Comlink from "comlink";
-import * as latexAstParser from "latex-ast-parser";
-import prettierPluginLatex from "prettier-plugin-latex";
 import Prettier from "prettier/esm/standalone.mjs";
+import { prettierPluginLatex } from "@unified-latex/unified-latex-prettier";
+import { parse } from "@unified-latex/unified-latex-util-parse";
+import { convertToHtml } from "@unified-latex/unified-latex-to-hast";
+import { decorateArrayForPegjs } from "@unified-latex/unified-latex-util-pegjs";
 
 import peg from "pegjs";
 
 // Needed to print the prettier Doc
 import prettierPluginBabel from "prettier/parser-babel";
 import globalthisgenrator from "globalthis";
+import { fixAllLints } from "../linter.ts";
 
 /**
  * Format `source` LaTeX code using Prettier to format/render
@@ -33,8 +36,12 @@ const prettierPluginLatexWithLint = {
     printers: {
         "latex-ast": {
             ...prettierPluginLatex.printers["latex-ast"],
-            preprocess: (ast) => {
-                return latexAstParser.tools.fixAllLints(ast);
+            preprocess: (ast, options) => {
+                // XXX For some reason the parsing isn't working right in prettier...so we will
+                // do it again ourselves. Very inefficient!
+                ast = parse(options.originalText);
+                const ret = fixAllLints(ast);
+                return ret;
             },
         },
     },
@@ -43,29 +50,19 @@ export function printPrettierWithLints(source = "", options = {}) {
     return Prettier.format(source, {
         printWidth: 80,
         useTabs: true,
+        useCache: false,
         ...options,
         parser: "latex-parser",
         plugins: [prettierPluginLatexWithLint],
     });
 }
 
-// All these objects used to be exported together. They aren't anymore, but
-// we combine them for convenience.
-const latexParser = {
-    Prettier,
-    prettierPluginLatex,
-    printPrettier,
-    parse: latexAstParser.parse,
-    printRaw: latexAstParser.printRaw,
-    astParsers: latexAstParser.astParsers,
-};
-
 // XXX globalThis needs a polyfill, otherwise CRA will silently error on build!
 var globalThis = globalthisgenrator();
 
 const obj = {
     format(texInput, options = {}) {
-        const output = latexParser.printPrettier(texInput, options);
+        const output = printPrettier(texInput, options);
 
         return output;
     },
@@ -75,14 +72,14 @@ const obj = {
         return output;
     },
     formatAsHtml(texInput, options = {}) {
-        let output = latexParser.parse(texInput, options);
-        output = latexAstParser.tools.fixAllLints(output);
-        output = latexAstParser.tools.convertToHtml(output, { wrapPars: true });
+        let output = parse(texInput, options);
+        //       output = latexAstParser.tools.fixAllLints(output);
+        output = convertToHtml(output, { wrapPars: true });
 
-        return latexParser.printRaw(output);
+        return output;
     },
     parse(texInput, options = {}) {
-        const output = latexParser.parse(texInput, options);
+        const output = parse(texInput, options);
 
         return output;
     },
@@ -102,7 +99,7 @@ const obj = {
         // So first generate the AST
         let ast = null;
         try {
-            ast = latexParser.parse(texInput, options);
+            ast = parse(texInput, options);
         } catch (e) {
             e.message = "Failed to parse LaTeX source " + e.message;
             throw e;
@@ -126,23 +123,20 @@ const obj = {
         // Before we run the parser, we want to pass in some functions
         // for manipulating ASTs. These are made global variables, because
         // there isn't another way to make them available to the parser...
-        Object.assign(globalThis, latexParser.astParsers.utils);
+        //Object.assign(globalThis, latexParser.astParsers.utils);
 
-        const output = parser.parse(
-            latexParser.astParsers.utils.decorateArrayForPegjs(ast),
-            {}
-        );
+        const output = parser.parse(decorateArrayForPegjs(ast), {});
         //const output = latexParser.astParsers[parserName](ast);
         return output;
     },
     parseToDoc(texInput, options = {}) {
-        const doc = latexParser.Prettier.__debug.printToDoc(texInput, {
+        const doc = Prettier.__debug.printToDoc(texInput, {
             ...options,
             parser: "latex-parser",
-            plugins: [latexParser.prettierPluginLatex],
+            plugins: [prettierPluginLatex],
         });
 
-        const output = latexParser.Prettier.__debug.formatDoc(doc, {
+        const output = Prettier.__debug.formatDoc(doc, {
             parser: "babel",
             plugins: [prettierPluginBabel],
         });

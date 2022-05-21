@@ -5,7 +5,7 @@ import "codemirror/mode/javascript/javascript";
 import "codemirror/lib/codemirror.css";
 import SplitPane from "react-split-pane";
 import "codemirror/addon/display/rulers";
-import * as latexAstParser from "latex-ast-parser";
+//import * as latexAstParser from "latex-ast-parser";
 
 import "./App.css";
 
@@ -19,10 +19,14 @@ import { AstView } from "./ast-view";
 
 import { DebugView } from "./DebugView";
 import { HtmlView } from "./html-view.tsx";
+import { filterProp } from "./filter-prop.ts";
+import { lintAll } from "./linter.ts";
 
-const DEFAULT_INPUT_TEXT = String.raw`\begin{enumerate}
-    \item[55,4] Hi there
-\item$e^2$ is math mode! \[\begin{matrix}12&3^e\\pi&0\end{matrix}\]
+const DEFAULT_INPUT_TEXT = String.raw`\section*{Really Cool Math}Below you'll find some really cool math.
+
+Check it out!\begin{enumerate}
+    \item[(a)] Hi there
+\item$e^2$ is math mode! \[\begin{bmatrix}12&3^e\\\pi&0\end{bmatrix}\]
 \end{enumerate}`;
 
 // Our worker that will format code in another thread.
@@ -82,7 +86,7 @@ function App() {
             asyncFormatter
                 .parse(texInput)
                 .then((ast) => {
-                    setLints(latexAstParser.tools.lintAll(ast));
+                    setLints(lintAll(ast));
                 })
                 .catch((e) => console.warn("Failed to parse", e));
         }
@@ -104,7 +108,11 @@ function App() {
     if (currDisplay === "json") {
         rightPanel = (
             <CodeMirror
-                value={JSON.stringify(texParsed, null, 4)}
+                value={JSON.stringify(
+                    filterProp(texParsed, "position"),
+                    null,
+                    4
+                )}
                 options={{ mode: "javascript" }}
             />
         );

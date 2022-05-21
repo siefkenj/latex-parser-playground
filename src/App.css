@@ -182,3 +182,7 @@ ul.lints {
 }
 .lints-list {
 }
+/* A heuristic for matching a katex render of a systeme macro expansion */
+.delimcenter + .mord .arraycolsep {
+    width: 0.15em !important;
+}
