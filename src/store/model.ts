@@ -1,4 +1,4 @@
-import { Action, Computed, Store, Thunk } from "easy-peasy";
+import { Action, Computed, Thunk } from "easy-peasy";
 import { ParseError } from "../async-worker/errors";
 import * as Ast from "@unified-latex/unified-latex-types";
 
