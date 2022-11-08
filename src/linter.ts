@@ -47,3 +47,17 @@ export const lintAll = (tree: Ast.Node | Ast.Node[]) => {
     const messages = file.messages.map((m) => ({ description: ""+m }));
     return messages;
 };
+
+/**
+ * Run all linting messages
+ */
+export const getLints = (tree: Ast.Node | Ast.Node[]) => {
+    tree = ensureRoot(tree);
+    let file = new VFile();
+    let processor = unified();
+    for (const lint of Object.values(lints)) {
+        processor = processor.use(lint as any);
+    }
+    processor.runSync(tree, file);
+    return file.messages.map(m => Object.assign({}, m))
+};

@@ -1,11 +1,12 @@
+dist: jammy
 language: node_js
 node_js:
-  - 16
+  - 18
 cache:
   directories:
   - node_modules
 script:
-  - npm install && npm run build
+  - npm ci && npm run build
 before_install:
   - dpkg --compare-versions `npm -v` ge 7.10 || npm i -g npm@^7.10
   - npm --version
