@@ -89,7 +89,7 @@ const exposed = {
     },
     getLints(texInput: string) {
         const parsed = exposed.parse(texInput);
-        return getLints(parsed);
+        return getLints(parsed, texInput);
     },
     // There are extra parsers made for parsing the AST.
     // This function will first parse to an AST and then
