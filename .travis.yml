@@ -14,6 +14,8 @@ after_failure: cat /home/travis/.npm/_logs/*-debug.log
 warnings_are_errors: false
 env:
   CI=false
+rvm:
+  - 2.7.2
 deploy:
   provider: pages
   skip_cleanup: true
