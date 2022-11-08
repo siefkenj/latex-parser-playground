@@ -15,7 +15,7 @@ import prettierPluginBabel from "prettier/parser-babel";
 // @ts-ignore
 //import globalthisgenrator from "globalthis";
 
-import { fixAllLints } from "../linter";
+import { fixAllLints, getLints } from "../linter";
 
 /**
  * Format `source` LaTeX code using Prettier to format/render
@@ -41,10 +41,7 @@ const prettierPluginLatexWithLint = {
     printers: {
         "latex-ast": {
             ...(prettierPluginLatex.printers?.["latex-ast"] || {}),
-            preprocess: (ast: any, options: any) => {
-                // XXX For some reason the parsing isn't working right in prettier...so we will
-                // do it again ourselves. Very inefficient!
-                ast = parse(options.originalText);
+            preprocess: (ast: Ast.Root, options: any) => {
                 const ret = fixAllLints(ast);
                 return ret;
             },
@@ -66,8 +63,14 @@ export function printPrettierWithLints(source = "", options = {}) {
 //var globalThis = globalthisgenrator();
 
 const exposed = {
-    format(texInput: string, options: { printWidth?: number } = {}) {
-        const output: string = printPrettier(texInput, options);
+    format(
+        texInput: string,
+        options: { printWidth?: number; fixLints?: boolean } = {}
+    ) {
+        let output: string;
+        output = options.fixLints
+            ? printPrettierWithLints(texInput, options)
+            : printPrettier(texInput, options);
 
         return output;
     },
@@ -83,6 +86,10 @@ const exposed = {
     parse(texInput: string, options = {}) {
         const output = parse(texInput);
         return output;
+    },
+    getLints(texInput: string) {
+        const parsed = exposed.parse(texInput);
+        return getLints(parsed);
     },
     // There are extra parsers made for parsing the AST.
     // This function will first parse to an AST and then

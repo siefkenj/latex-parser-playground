@@ -6,6 +6,7 @@ import { stex } from "@codemirror/legacy-modes/mode/stex";
 
 import { useStoreActions, useStoreState } from "../store/hooks";
 import { isParseError, ParseError } from "../async-worker/errors";
+import { VFile } from "vfile";
 
 const latexSyntaxHighlight = StreamLanguage.define(stex);
 
@@ -21,7 +22,9 @@ const latexSyntaxHighlight = StreamLanguage.define(stex);
  */
 function lintFactory() {
     const currentLints: Diagnostic[] = [];
-    const setLint = (parseError: ParseError | string | null): void => {
+    const setLint = (
+        parseError: ParseError | string | null | VFile["messages"]
+    ): void => {
         if (isParseError(parseError)) {
             currentLints.length = 0;
             currentLints.push({
@@ -30,6 +33,19 @@ function lintFactory() {
                 severity: "error",
                 message: parseError.desc,
             });
+            return;
+        }
+        if (Array.isArray(parseError)) {
+            const lints = parseError;
+            currentLints.length = 0;
+            for (const lint of lints) {
+                currentLints.push({
+                    from: lint.position?.start.offset || 0,
+                    to: lint.position?.end.offset || 0,
+                    severity: "warning",
+                    message: lint.message,
+                });
+            }
             return;
         }
         currentLints.length = 0;
@@ -47,6 +63,7 @@ export function Editor() {
     const editorText = useStoreState((state) => state.editorText);
     const editorChange = useStoreActions((actions) => actions.editorChange);
     const editorRef = React.useRef<HTMLDivElement>(null);
+    const lints = useStoreState((state) => state.lints);
     useCodeMirror({
         container: editorRef.current,
         value: editorText,
@@ -57,8 +74,12 @@ export function Editor() {
     const parseError = useStoreState((state) => state.parseError);
 
     React.useEffect(() => {
-        setLint(parseError);
-    }, [parseError]);
+        if (parseError) {
+            setLint(parseError);
+        } else {
+            setLint(lints);
+        }
+    }, [parseError, lints]);
 
     return <div className="editor-container" ref={editorRef} />;
 }

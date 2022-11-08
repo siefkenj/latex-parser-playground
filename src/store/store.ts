@@ -33,12 +33,13 @@ export const store = createStore<StoreModel>({
         if (payload != null) {
             actions.setEditorText(payload);
         }
-        const { activeView, editorText, textWidth } = getState();
+        const { activeView, editorText, textWidth, applyLints } = getState();
         try {
             switch (activeView) {
                 case "formatted":
                     const formatted = await parsingWorker.format(editorText, {
                         printWidth: textWidth,
+                        fixLints: applyLints,
                     });
                     actions.setParseError(null);
                     actions.setFormattedText(formatted);
@@ -57,6 +58,8 @@ export const store = createStore<StoreModel>({
                     const html = await parsingWorker.formatAsHtml(editorText);
                     actions.setHtml(html);
             }
+            const lintMessages = await parsingWorker.getLints(editorText);
+            actions.setLints(lintMessages);
         } catch (e) {
             actions.setParsed(null);
             if (isParseError(e)) {
@@ -86,7 +89,13 @@ export const store = createStore<StoreModel>({
     setApplyLints: action((state, payload) => {
         state.applyLints = payload;
     }),
+    lintDescs: computed((state) =>
+        state.lints.map((m) => `${m.name}: ${m.message}`)
+    ),
     lints: [],
+    setLints: action((state, payload) => {
+        state.lints = payload;
+    }),
 
     jsonAst: computed((state) =>
         JSON.stringify(filterProp(state.parsed || {}, "position"), null, 4)

@@ -7,8 +7,6 @@ import { AstView } from "./components/ast-view";
 
 import { DebugView } from "./components/debug";
 import { HtmlView } from "./components/html-view";
-import { lintAll } from "./linter";
-import { parsingWorker } from "./async-worker/worker-wrapper";
 import { useStoreActions, useStoreState } from "./store/hooks";
 import { Editor } from "./components/editor";
 import { FormattedDisplay } from "./components/formatted-display";
@@ -20,58 +18,19 @@ function App() {
     const setCurrDisplay = useStoreActions((a) => a.setActiveView);
     const textWidth = useStoreState((state) => state.textWidth);
     const setTextWidth = useStoreActions((a) => a.setTextWidth);
-    const texInput = useStoreState((state) => state.editorText);
     const editorChange = useStoreActions((a) => a.editorChange);
     const applyLints = useStoreState((state) => state.applyLints);
     const setApplyLints = useStoreActions((a) => a.setApplyLints);
     const texParsed = useStoreState((state) => state.parsed);
     const htmlRender = useStoreState((state) => state.html);
-    const setFormattedText = useStoreActions((a) => a.setFormattedText);
+    const lints = useStoreState((state) => state.lintDescs);
 
     const [showLints, setShowLints] = React.useState(false);
-    const [lints, setLints] = React.useState([]);
+    //   const [lints, setLints] = React.useState([]);
 
     React.useEffect(() => {
         editorChange();
-    }, [currDisplay, editorChange]);
-
-    React.useEffect(() => {
-        switch (currDisplay) {
-            case "formatted":
-                if (applyLints) {
-                    parsingWorker
-                        //asyncFormatter
-                        .formatWithLints(texInput, { printWidth: textWidth })
-                        .then((x: any) => setFormattedText(x))
-                        .catch((e: any) => console.warn("Failed to parse", e));
-                } else {
-                    parsingWorker
-                        //asyncFormatter
-                        .format(texInput, { printWidth: textWidth })
-                        .then((x: any) => setFormattedText(x))
-                        .catch((e: any) => console.warn("Failed to parse", e));
-                }
-                break;
-            default:
-                break;
-        }
-        if (showLints) {
-            parsingWorker
-                //asyncFormatter
-                .parse(texInput)
-                .then((ast) => {
-                    setLints(lintAll(ast) as any);
-                })
-                .catch((e) => console.warn("Failed to parse", e));
-        }
-    }, [
-        texInput,
-        textWidth,
-        currDisplay,
-        showLints,
-        applyLints,
-        setFormattedText,
-    ]);
+    }, [currDisplay, editorChange, applyLints]);
 
     let rightPanel = null;
     if (currDisplay === "formatted") {
@@ -159,8 +118,8 @@ function App() {
                     <div className="lints-list-surround">
                         <div className="lints-list">
                             <ul className="lints">
-                                {lints.map((lint: any, i) => (
-                                    <li key={i}>{lint.description}</li>
+                                {lints.map((lint, i) => (
+                                    <li key={i}>{lint}</li>
                                 ))}
                             </ul>
                         </div>

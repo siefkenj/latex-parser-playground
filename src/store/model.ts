@@ -1,5 +1,6 @@
 import { Action, Computed, Thunk } from "easy-peasy";
 import { ParseError } from "../async-worker/errors";
+import { VFile } from "vfile";
 import * as Ast from "@unified-latex/unified-latex-types";
 
 type ActiveView = "formatted" | "ast" | "json" | "doc" | "debug" | "html";
@@ -32,7 +33,9 @@ export interface StoreModel {
 
     applyLints: boolean;
     setApplyLints: Action<StoreModel, boolean>;
-    lints: string[];
+    lintDescs: Computed<StoreModel, string[]>;
+    lints: VFile["messages"];
+    setLints: Action<StoreModel, VFile["messages"]>;
 
     jsonAst: Computed<StoreModel, string>;
 
