@@ -49,11 +49,12 @@ export const lintAll = (tree: Ast.Node | Ast.Node[]) => {
 };
 
 /**
- * Run all linting messages
+ * Run all linting messages. If `source` is not included, some lints may not run (since some
+ * lints require inspecting the original source text).
  */
-export const getLints = (tree: Ast.Node | Ast.Node[]) => {
+export const getLints = (tree: Ast.Node | Ast.Node[], source?: string) => {
     tree = ensureRoot(tree);
-    let file = new VFile();
+    let file = new VFile(source);
     let processor = unified();
     for (const lint of Object.values(lints)) {
         processor = processor.use(lint as any);
