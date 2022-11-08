@@ -1,61 +1,60 @@
 import React from "react";
-import { Controlled as CodeMirror } from "react-codemirror2";
-import "codemirror/mode/stex/stex";
-import "codemirror/mode/javascript/javascript";
-import "codemirror/mode/pegjs/pegjs";
-import "codemirror/lib/codemirror.css";
+
 import SplitPane from "react-split-pane";
-import "codemirror/addon/display/rulers";
 
-import "./App.css";
+import { filterProp } from "../filter-prop";
+import { parsingWorker } from "../async-worker/worker-wrapper";
+import { useStoreActions, useStoreState } from "../store/hooks";
+import { StoreModel } from "../store/model";
+import {
+    DebugJavascriptDisplay,
+    DebugJsonDisplay,
+    DebugLatexDisplay,
+    DebugPegjsDisplay,
+} from "./debug-displays";
 
-import * as Comlink from "comlink";
-/* eslint-disable import/no-webpack-loader-syntax */
-import Worker from "worker-loader!./worker/parsing-worker";
-import { filterProp } from "./filter-prop.ts";
+const MODE_TO_COMPONENT: Record<
+    keyof StoreModel["debug"]["displayCode"],
+    typeof DebugJsonDisplay
+> = {
+    ast: DebugJsonDisplay,
+    doc: DebugJavascriptDisplay,
+    formatted: DebugLatexDisplay,
+    parsedAst: DebugJsonDisplay,
+    pegGrammar: DebugPegjsDisplay,
+};
 
-// Our worker that will format code in another thread.
-const worker = new Worker();
-const asyncFormatter = Comlink.wrap(worker);
+export function DebugView() {
+    const texInput = useStoreState((state) => state.editorText);
+    const textWidth = useStoreState((state) => state.textWidth);
 
-export function DebugView(props) {
-    const { texInput, textWidth } = props;
-    const [currDisplay, _setCurrDisplay] = React.useState({ peggrammar: true });
-    const [displayCode, _setDisplayCode] = React.useState({
-        peggrammar: { code: "", options: { mode: "pegjs" } },
-    });
+    const currDisplay = useStoreState((state) => state.debug.currDisplay);
+    const setCurrDisplay = useStoreActions((a) => a.debug.setCurrDisplay);
 
-    // Update what is currently displayed. Pass in an object like
-    // `{ formatted: true }`
-    function setCurrDisplay(display) {
-        _setCurrDisplay((currDisplay) => ({ ...currDisplay, ...display }));
-    }
-
-    function setDisplayCode(codeInfo) {
-        _setDisplayCode((displayCode) => ({ ...displayCode, ...codeInfo }));
-    }
+    const displayCode = useStoreState((state) => state.debug.displayCode);
+    const setDisplayCode = useStoreActions((a) => a.debug.setDisplayCode);
 
     React.useEffect(() => {
-        for (const [display, active] of Object.entries(currDisplay)) {
+        for (const [_display, active] of Object.entries(currDisplay)) {
+            const display = _display as keyof typeof currDisplay;
             if (!active) {
                 continue;
             }
             switch (display) {
                 case "formatted":
-                    asyncFormatter
+                    parsingWorker
                         .format(texInput, { printWidth: textWidth })
                         .then((x) =>
                             setDisplayCode({
                                 formatted: {
                                     code: x,
-                                    options: { mode: "stex" },
                                 },
                             })
                         )
                         .catch((e) => console.warn("Failed to parse", e));
                     break;
                 case "ast":
-                    asyncFormatter
+                    parsingWorker
                         .parse(texInput)
                         .then((x) =>
                             setDisplayCode({
@@ -65,47 +64,43 @@ export function DebugView(props) {
                                         null,
                                         4
                                     ),
-                                    options: { mode: "javascript" },
                                 },
                             })
                         )
                         .catch((e) => console.warn("Failed to parse", e));
                     break;
                 case "doc":
-                    asyncFormatter
+                    parsingWorker
                         .parseToDoc(texInput)
                         .then((x) =>
                             setDisplayCode({
                                 doc: {
                                     code: x,
-                                    options: { mode: "javascript" },
                                 },
                             })
                         )
                         .catch((e) => console.warn("Failed to parse", e));
                     break;
-                case "parsedast":
-                    asyncFormatter
+                case "parsedAst":
+                    parsingWorker
                         .parseWithAstParser(texInput, {
-                            parserSource: displayCode.peggrammar.code,
+                            parserSource: displayCode.pegGrammar.code,
                         })
                         .then((x) =>
                             setDisplayCode({
-                                parsedast: {
+                                parsedAst: {
                                     code: JSON.stringify(
                                         filterProp(x, "position"),
                                         null,
                                         4
                                     ),
-                                    options: { mode: "javascript" },
                                 },
                             })
                         )
                         .catch((e) => {
                             setDisplayCode({
-                                parsedast: {
+                                parsedAst: {
                                     code: e.message,
-                                    options: { mode: "javascript" },
                                 },
                             });
                             console.warn("Failed to parse", e);
@@ -115,10 +110,17 @@ export function DebugView(props) {
                     break;
             }
         }
-    }, [texInput, textWidth, currDisplay, displayCode.peggrammar]);
+    }, [
+        texInput,
+        textWidth,
+        currDisplay,
+        displayCode.pegGrammar,
+        setDisplayCode,
+    ]);
 
     const rightPanelElements = Object.entries(currDisplay)
-        .map(([key, val]) => {
+        .map(([_key, val]) => {
+            const key = _key as keyof typeof displayCode;
             if (!val) {
                 return null;
             }
@@ -126,24 +128,27 @@ export function DebugView(props) {
                 code: "WARNING: No Code",
                 options: {},
             };
-            let onChange = () => {};
-            if (key === "peggrammar") {
-                // The peg grammar is the only thing we can edit, so it gets special treatment
-                onChange = (editor, data, text) => {
-                    setDisplayCode({
-                        peggrammar: { code: text, options: { mode: "pegjs" } },
-                    });
-                };
-            }
+
+            const Component = MODE_TO_COMPONENT[key];
+
             return (
                 <div className="debug-code-parent" key={key}>
                     <div className="debug-code-label">{key}</div>
-                    <div style={{ flexGrow: 1 }}>
+                    <div style={{ flexGrow: 1, overflow: "hidden" }}>
                         <div className="code-container">
-                            <CodeMirror
-                                value={codeInfo.code}
-                                options={codeInfo.options}
-                                onBeforeChange={onChange}
+                            <Component
+                                key={key}
+                                code={codeInfo.code}
+                                onChange={(value) => {
+                                    if (key === "pegGrammar") {
+                                        // The peg grammar is the only thing we can edit, so it gets special treatment
+                                        setDisplayCode({
+                                            pegGrammar: {
+                                                code: value,
+                                            },
+                                        });
+                                    }
+                                }}
                             />
                         </div>
                     </div>
@@ -154,7 +159,7 @@ export function DebugView(props) {
 
     // SplitPane can only have two children. If we want more,
     // we have to recursively nest.
-    function createNestedSplitpanes(items) {
+    function createNestedSplitpanes(items: (React.ReactElement | null)[]) {
         if (items.length === 0) {
             return null;
         }
@@ -176,6 +181,7 @@ export function DebugView(props) {
                 flexDirection: "column",
                 flexGrow: 1,
                 height: "100%",
+                overflow: "hidden",
             }}
         >
             <div>
@@ -183,9 +189,9 @@ export function DebugView(props) {
                 <label>
                     <input
                         type="checkbox"
-                        checked={!!currDisplay.peggrammar}
+                        checked={!!currDisplay.pegGrammar}
                         onChange={(e) => {
-                            setCurrDisplay({ peggrammar: e.target.checked });
+                            setCurrDisplay({ pegGrammar: e.target.checked });
                         }}
                     />
                     PEG AST Grammar (for running PEG against the AST)
@@ -193,9 +199,9 @@ export function DebugView(props) {
                 <label>
                     <input
                         type="checkbox"
-                        checked={!!currDisplay.parsedast}
+                        checked={!!currDisplay.parsedAst}
                         onChange={(e) => {
-                            setCurrDisplay({ parsedast: e.target.checked });
+                            setCurrDisplay({ parsedAst: e.target.checked });
                         }}
                     />
                     Parsed AST (after being run through the PEG grammar)
@@ -237,6 +243,7 @@ export function DebugView(props) {
                     display: "flex",
                     flexDirection: "column",
                     position: "relative",
+                    overflow: "hidden",
                 }}
             >
                 {createNestedSplitpanes(rightPanelElements)}

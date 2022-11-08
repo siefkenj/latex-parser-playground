@@ -1,8 +1,11 @@
 import React from "react";
-import { console } from "globalthis/implementation";
+import * as Ast from "@unified-latex/unified-latex-types";
 import { printRaw } from "@unified-latex/unified-latex-util-print-raw";
 
-function Captioned({ caption, children }) {
+function Captioned({
+    caption,
+    children,
+}: React.PropsWithChildren<{ caption: string }>) {
     return (
         <div className="ast-captioned">
             <div className="ast-captioned-caption">{caption}</div>
@@ -11,21 +14,21 @@ function Captioned({ caption, children }) {
     );
 }
 
-function Node(props) {
+function Node(props: { value: string }) {
     return (
         <Captioned caption="">
             <span className="ast-node">{"" + props.value}</span>
         </Captioned>
     );
 }
-function Whitespace(props) {
+function Whitespace(props: {}) {
     return (
         <Captioned caption="">
             <span className="ast-node">&nbsp;</span>
         </Captioned>
     );
 }
-function Parbreak(props) {
+function Parbreak(props: {}) {
     return (
         <React.Fragment>
             <br />
@@ -36,7 +39,7 @@ function Parbreak(props) {
         </React.Fragment>
     );
 }
-function InlineMath({ children }) {
+function InlineMath({ children }: React.PropsWithChildren<{}>) {
     return (
         <Captioned caption="$...$">
             <span className="ast-node">
@@ -47,7 +50,7 @@ function InlineMath({ children }) {
         </Captioned>
     );
 }
-function Superscript({ children }) {
+function Superscript({ children }: React.PropsWithChildren<{}>) {
     return (
         <Captioned caption="^">
             <span className="ast-node">
@@ -57,7 +60,7 @@ function Superscript({ children }) {
         </Captioned>
     );
 }
-function Subscript({ children }) {
+function Subscript({ children }: React.PropsWithChildren<{}>) {
     return (
         <Captioned caption="_">
             <span className="ast-node">
@@ -67,7 +70,7 @@ function Subscript({ children }) {
         </Captioned>
     );
 }
-function Group({ children }) {
+function Group({ children }: React.PropsWithChildren<{}>) {
     return (
         <Captioned caption="{...}">
             <span className="ast-node">
@@ -78,7 +81,7 @@ function Group({ children }) {
         </Captioned>
     );
 }
-function DisplayMath({ children }) {
+function DisplayMath({ children }: React.PropsWithChildren<{}>) {
     return (
         <Captioned caption={"\\[...\\]"}>
             <span className="ast-node">
@@ -89,7 +92,7 @@ function DisplayMath({ children }) {
         </Captioned>
     );
 }
-function Macro({ name, args }) {
+function Macro({ name, args }: { name: string; args: React.ReactNode }) {
     return (
         <Captioned caption={"macro"}>
             <span className="ast-node">
@@ -100,7 +103,7 @@ function Macro({ name, args }) {
         </Captioned>
     );
 }
-function Verb({ escape, content }) {
+function Verb({ escape, content }: { escape: string; content: string }) {
     return (
         <Captioned caption={`\\verb${escape}...${escape}`}>
             <span className="ast-node">
@@ -111,31 +114,24 @@ function Verb({ escape, content }) {
         </Captioned>
     );
 }
-function Verbatim({ content }) {
+function Verbatim({ content, name }: { content: string; name: string }) {
     return (
         <Captioned caption={`verbatim env`}>
             <span className="ast-node">
-                <span className="ast-control-symbol">
-                    {"\\begin{verbatim}"}
-                </span>
+                <span className="ast-control-symbol">{`\\begin{${name}}`}</span>
                 <span className="ast-verb">{content}</span>
-                <span className="ast-control-symbol">{"\\end{verbatim}"}</span>
+                <span className="ast-control-symbol">{`\\end{${name}}`}</span>
             </span>
         </Captioned>
     );
 }
-function CommentEnv({ content }) {
-    return (
-        <Captioned caption={`comment env`}>
-            <span className="ast-node">
-                <span className="ast-control-symbol">{"\\begin{comment}"}</span>
-                <span className="ast-verb">{content}</span>
-                <span className="ast-control-symbol">{"\\end{comment}"}</span>
-            </span>
-        </Captioned>
-    );
-}
-function Comment({ sameline, content }) {
+function Comment({
+    sameline,
+    content,
+}: {
+    sameline: boolean;
+    content: string;
+}) {
     const caption = sameline ? "comment (sameline)" : "comment";
     return (
         <React.Fragment>
@@ -149,7 +145,11 @@ function Comment({ sameline, content }) {
         </React.Fragment>
     );
 }
-function Environment({ name, args, children }) {
+function Environment({
+    name,
+    args,
+    children,
+}: React.PropsWithChildren<{ name: string; args?: React.ReactNode }>) {
     return (
         <div className="ast-environment-container">
             <Captioned caption={`env (${name})`}>
@@ -157,7 +157,7 @@ function Environment({ name, args, children }) {
                     <span className="ast-control-symbol">
                         {`\\begin{${name}}`}
                     </span>
-                    {args}
+                    {args || null}
                     <span className="ast-env">{children}</span>
                     <span className="ast-control-symbol">{`\\end{${name}}`}</span>
                 </span>
@@ -165,7 +165,11 @@ function Environment({ name, args, children }) {
         </div>
     );
 }
-function Argument({ children, openMark, closeMark }) {
+function Argument({
+    children,
+    openMark,
+    closeMark,
+}: React.PropsWithChildren<{ openMark: string; closeMark: string }>) {
     return (
         <div className="ast-args-container">
             <Captioned caption="args">
@@ -178,15 +182,14 @@ function Argument({ children, openMark, closeMark }) {
         </div>
     );
 }
-function MathEnv({ name, children }) {
+function MathEnv({
+    name,
+    children,
+}: React.PropsWithChildren<{ name: string }>) {
     return <Environment name={name}>{children}</Environment>;
 }
 
-//
-//
-//
-
-function unwrapString(node) {
+function unwrapString(node: string | Ast.Node) {
     if (typeof node === "string") {
         return node;
     }
@@ -197,7 +200,10 @@ function unwrapString(node) {
     return "" + node;
 }
 
-function renderTree(ast, currentDepth = 0) {
+function renderTree(
+    ast: Ast.Ast | Ast.Root | Ast.Argument | Ast.Argument[] | null | undefined,
+    currentDepth = 0
+): JSX.Element | JSX.Element[] | null | string {
     if (!ast) {
         //console.warn("Encountered empty AST");
         return null;
@@ -213,8 +219,6 @@ function renderTree(ast, currentDepth = 0) {
         ));
     }
 
-    // XXX hack until the parser uses lowercase names
-    ast.type = ast.type || ast.TYPE;
     switch (ast.type) {
         case "string":
             return <Node value={unwrapString(ast.content)} />;
@@ -229,23 +233,25 @@ function renderTree(ast, currentDepth = 0) {
                 </InlineMath>
             );
         case "macro":
+            if (ast.escapeToken === "" && ast.content === "^") {
+                return (
+                    <Superscript>
+                        {renderTree(ast.args, currentDepth + 1)}
+                    </Superscript>
+                );
+            }
+            if (ast.escapeToken === "" && ast.content === "_") {
+                return (
+                    <Subscript>
+                        {renderTree(ast.args, currentDepth + 1)}
+                    </Subscript>
+                );
+            }
             return (
                 <Macro
                     name={unwrapString(ast.content)}
                     args={renderTree(ast.args, currentDepth + 1)}
                 />
-            );
-        case "superscript":
-            return (
-                <Superscript>
-                    {renderTree(ast.content, currentDepth + 1)}
-                </Superscript>
-            );
-        case "subscript":
-            return (
-                <Subscript>
-                    {renderTree(ast.content, currentDepth + 1)}
-                </Subscript>
             );
         case "group":
             return <Group>{renderTree(ast.content, currentDepth + 1)}</Group>;
@@ -254,7 +260,9 @@ function renderTree(ast, currentDepth = 0) {
                 <Verb escape={ast.escape} content={unwrapString(ast.content)} />
             );
         case "verbatim":
-            return <Verbatim content={unwrapString(ast.content)} />;
+            return (
+                <Verbatim content={unwrapString(ast.content)} name={ast.env} />
+            );
         case "displaymath":
             return (
                 <DisplayMath>
@@ -282,12 +290,12 @@ function renderTree(ast, currentDepth = 0) {
                     {renderTree(ast.content, currentDepth + 1)}
                 </MathEnv>
             );
-        case "commentenv":
-            return <CommentEnv content={unwrapString(ast.content)} />;
+        //case "commentenv":
+        //    return <CommentEnv content={unwrapString(ast.content)} />;
         case "comment":
             return (
                 <Comment
-                    sameline={ast.sameline}
+                    sameline={Boolean(ast.sameline)}
                     content={unwrapString(ast.content)}
                 />
             );
@@ -300,13 +308,13 @@ function renderTree(ast, currentDepth = 0) {
     return "" + ast;
 }
 
-export function AstView({ ast, ...rest }) {
+export function AstView({ ast }: { ast: Ast.Ast | Ast.Root | null }) {
     try {
         const rendered = renderTree(ast);
 
         return <div>{rendered}</div>;
     } catch (e) {
         console.error(e);
-        return "Error Rendering";
+        return <React.Fragment>Error Rendering</React.Fragment>;
     }
 }

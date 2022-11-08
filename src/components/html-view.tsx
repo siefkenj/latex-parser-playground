@@ -1,11 +1,54 @@
 import React from "react";
 import "katex/dist/katex.min.css";
+// @ts-ignore
 import renderMathInElement from "katex/dist/contrib/auto-render";
+// @ts-ignore
 import katex from "katex/dist/katex.mjs";
 import ReactSplitPane from "react-split-pane";
-import { CodeMirrorPanel } from "./CodeMirrorPanel";
+// @ts-ignore
 import Prettier from "prettier/esm/standalone.mjs";
 import htmlParser from "prettier/parser-html";
+
+import { useCodeMirror } from "@uiw/react-codemirror";
+import { html } from "@codemirror/lang-html";
+import { useStoreState } from "../store/hooks";
+
+export function HtmlSourceDisplay() {
+    const editorRef = React.useRef<HTMLDivElement>(null);
+    const htmlInput = useStoreState((state) => state.html);
+    const formattedHtml = React.useMemo(() => {
+        try {
+            return Prettier.format(htmlInput, {
+                printWidth: 80,
+                useTabs: true,
+                parser: "html",
+                plugins: [htmlParser],
+            });
+        } catch {
+            return htmlInput;
+        }
+    }, [htmlInput]);
+
+    useCodeMirror({
+        container: editorRef.current,
+        value: formattedHtml,
+        extensions: [html()],
+        readOnly: true,
+        height: "100%",
+        basicSetup: {
+            lineNumbers: false,
+            foldGutter: true,
+            highlightActiveLine: false,
+        },
+    });
+
+    return (
+        <div
+            style={{ flex: "1 1 auto", height: "100%", width: "100%" }}
+            ref={editorRef}
+        />
+    );
+}
 
 /**
  * Wrapper around ReactSplitPlane so that typescript stops complaining.
@@ -29,16 +72,16 @@ function KatexRenderedHtml({ source }: { source: string }) {
                 //trust: true,
                 //strict: false,
             });
-            for (const dm of renderedRef.current.querySelectorAll(
-                ".display-math"
+            for (const dm of Array.from(
+                renderedRef.current.querySelectorAll(".display-math")
             )) {
                 katex.render(dm.textContent, dm, {
                     displayMode: true,
                     throwOnError: false,
                 });
             }
-            for (const im of renderedRef.current.querySelectorAll(
-                ".inline-math"
+            for (const im of Array.from(
+                renderedRef.current.querySelectorAll(".inline-math")
             )) {
                 katex.render(im.textContent, im, {
                     displayMode: false,
@@ -57,30 +100,11 @@ function KatexRenderedHtml({ source }: { source: string }) {
     );
 }
 
-export function HtmlView({ htmlInput, ...rest }) {
-    const formattedHtml = React.useMemo(() => {
-        try {
-            return Prettier.format(htmlInput, {
-                printWidth: 80,
-                useTabs: true,
-                parser: "html",
-                plugins: [htmlParser],
-            });
-        } catch {
-            return htmlInput;
-        }
-    }, [htmlInput]);
+export function HtmlView({ htmlInput, ...rest }: { htmlInput: string }) {
     return (
         <SplitPane split="horizontal" defaultSize="50%">
             <div className="code-container">
-                <CodeMirrorPanel
-                    lineNumbers={true}
-                    showCursorWhenSelecting={true}
-                    tabSize={4}
-                    rulerColor="#eeeeee"
-                    mode="html"
-                    value={formattedHtml}
-                />
+                <HtmlSourceDisplay />
             </div>
             <KatexRenderedHtml source={htmlInput} />
         </SplitPane>
