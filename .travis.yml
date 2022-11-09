@@ -1,4 +1,4 @@
-dist: jammy
+dist: focal
 language: node_js
 node_js:
   - 18
@@ -14,12 +14,12 @@ after_failure: cat /home/travis/.npm/_logs/*-debug.log
 warnings_are_errors: false
 env:
   CI=false
-rvm:
-  - 2.7.2
+#rvm:
+#  - 2.7.2
 deploy:
   provider: pages
   skip_cleanup: true
   github_token: $github_token
   local_dir: build
-  #on:
-  #  branch: master
+  on:
+    branch: master
