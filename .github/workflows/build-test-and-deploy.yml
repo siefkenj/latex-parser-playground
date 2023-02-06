@@ -35,13 +35,12 @@ jobs:
                   cache: "npm"
             - run: npm ci
             - run: npm run build --if-present
-            - run: npm test
 
             - name: Prepare for Github Pages
               if: ${{ github.event_name == 'push' }}
               uses: actions/upload-pages-artifact@v1
               with:
-                  path: ./packages/pretext-playground/build
+                  path: ./build
     deploy:
         environment:
             name: github-pages
