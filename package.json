@@ -20,6 +20,7 @@
         "@unified-latex/unified-latex-to-hast": "^1.2.2",
         "@unified-latex/unified-latex-util-parse": "^1.2.2",
         "@unified-latex/unified-latex-util-pegjs": "^1.2.2",
+        "@unified-latex/unified-latex-util-pgfkeys": "^1.2.2",
         "@unified-latex/unified-latex-util-print-raw": "^1.2.2",
         "@unified-latex/unified-latex-util-replace": "^1.2.2",
         "@unified-latex/unified-latex-util-split": "^1.2.2",
