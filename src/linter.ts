@@ -43,7 +43,7 @@ export const lintAll = (tree: Ast.Node | Ast.Node[]) => {
     for (const lint of Object.values(lints)) {
         processor = processor.use(lint as any);
     }
-    processor.runSync(tree, file);
+    processor.runSync(tree, file as any);
     const messages = file.messages.map((m) => ({ description: ""+m }));
     return messages;
 };
@@ -59,6 +59,6 @@ export const getLints = (tree: Ast.Node | Ast.Node[], source?: string) => {
     for (const lint of Object.values(lints)) {
         processor = processor.use(lint as any);
     }
-    processor.runSync(tree, file);
+    processor.runSync(tree, file as any);
     return file.messages.map(m => Object.assign({}, m))
 };

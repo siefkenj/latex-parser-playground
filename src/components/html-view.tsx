@@ -8,6 +8,7 @@ import ReactSplitPane from "react-split-pane";
 // @ts-ignore
 import Prettier from "prettier/esm/standalone.mjs";
 import htmlParser from "prettier/parser-html";
+import "./latex-html.css";
 
 import { useCodeMirror } from "@uiw/react-codemirror";
 import { html } from "@codemirror/lang-html";
@@ -44,7 +45,7 @@ export function HtmlSourceDisplay() {
 
     return (
         <div
-            style={{ flex: "1 1 auto", height: "100%", width: "100%" }}
+            style={{ flex: "1 1 auto", height: "100%", width: "100%"}}
             ref={editorRef}
         />
     );
@@ -95,6 +96,7 @@ function KatexRenderedHtml({ source }: { source: string }) {
         <div
             ref={renderedRef}
             className="html-render-container"
+            style={{margin: "0.5em"}}
             dangerouslySetInnerHTML={{ __html: source }}
         ></div>
     );
