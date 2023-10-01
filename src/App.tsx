@@ -12,6 +12,7 @@ import { Editor } from "./components/editor";
 import { FormattedDisplay } from "./components/formatted-display";
 import { JsonDisplay } from "./components/json-display";
 import { PrettierDocDisplay } from "./components/prettier-doc-display";
+import { MarkdownView } from "./components/markdown-view";
 
 function App() {
     const currDisplay = useStoreState((state) => state.activeView);
@@ -23,6 +24,7 @@ function App() {
     const setApplyLints = useStoreActions((a) => a.setApplyLints);
     const texParsed = useStoreState((state) => state.parsed);
     const htmlRender = useStoreState((state) => state.html);
+    const markdownRender = useStoreState((state) => state.markdown);
     const lints = useStoreState((state) => state.lintDescs);
 
     const [showLints, setShowLints] = React.useState(false);
@@ -51,6 +53,9 @@ function App() {
     if (currDisplay === "html") {
         rightPanel = <HtmlView htmlInput={htmlRender} />;
     }
+    if (currDisplay === "markdown") {
+        rightPanel = <MarkdownView mdast={markdownRender} />;
+    }
 
     return (
         <div className="App">
@@ -78,6 +83,7 @@ function App() {
                     </option>
                     <option value="debug">Debug View</option>
                     <option value="html">HTML View</option>
+                    <option value="markdown">Markdown View</option>
                 </select>{" "}
                 <label>
                     Show Lints:{" "}

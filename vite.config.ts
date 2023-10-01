@@ -7,5 +7,5 @@ import svgrPlugin from "vite-plugin-svgr";
 export default defineConfig({
     base: "./",
     plugins: [react(), viteTsconfigPaths(), svgrPlugin()],
-    build: { sourcemap: true, minify: false },
+    build: { sourcemap: true, minify: false, outDir: "build" },
 });
