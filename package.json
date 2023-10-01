@@ -23,7 +23,7 @@
         "@unified-latex/unified-latex-util-split": "^1.4.2",
         "color": "^4.2.3",
         "comlink": "^4.4.1",
-        "easy-peasy": "^5.2.0",
+        "easy-peasy": "^6.0.3",
         "globalthis": "^1.0.3",
         "katex": "^0.16.8",
         "pegjs": "0.10.0",
