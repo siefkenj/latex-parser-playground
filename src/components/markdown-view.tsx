@@ -16,7 +16,7 @@ import type * as Mdast from "mdast";
 export function MarkdownSourceDisplay() {
     const editorRef = React.useRef<HTMLDivElement>(null);
     const markdownInput = useStoreState((state) => state.markdown);
-    const formattedMarkdown = toMarkdown(markdownInput as any);
+    const formattedMarkdown = markdownInput;
 
     useCodeMirror({
         container: editorRef.current,
@@ -57,13 +57,13 @@ function RenderedMarkdown({ source }: { source: string }) {
     );
 }
 
-export function MarkdownView({ mdast, ...rest }: { mdast: Mdast.Root }) {
+export function MarkdownView({ mdast, ...rest }: { mdast: string }) {
     return (
         <SplitPane split="horizontal" defaultSize="50%">
             <div className="code-container">
                 <MarkdownSourceDisplay />
             </div>
-            <RenderedMarkdown source={toMarkdown(mdast as any)} />
+            <RenderedMarkdown source={mdast} />
         </SplitPane>
     );
 }

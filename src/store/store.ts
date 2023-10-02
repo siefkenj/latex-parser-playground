@@ -91,7 +91,7 @@ export const store = createStore<StoreModel>({
     setHtml: action((state, payload) => {
         state.html = payload;
     }),
-    markdown: {type:"root", children:[]},
+    markdown: "",
     setMarkdown: action((state, payload) => {
         state.markdown = payload;
     }),

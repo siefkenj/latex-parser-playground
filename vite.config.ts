@@ -8,4 +8,7 @@ export default defineConfig({
     base: "./",
     plugins: [react(), viteTsconfigPaths(), svgrPlugin()],
     build: { sourcemap: true, minify: false, outDir: "build" },
+    resolve: {
+        conditions: ['worker']
+    }
 });

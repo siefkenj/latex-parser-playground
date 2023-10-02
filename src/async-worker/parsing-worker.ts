@@ -92,10 +92,11 @@ const exposed = {
     formatAsMarkdown(texInput: string, options = {}) {
         let ast = unified()
             .use(unifiedLatexFromString)
-            .use(unifiedLatexToMdast)
-            .parse(texInput);
+            .use(unifiedLatexToMdast).parse( texInput);
         let mdast = unified().use(unifiedLatexToMdast).runSync(ast);
-        return mdast;
+        let output= toMarkdown(mdast as any);
+        //console.log(output, mdast)
+        return output;
     },
     parse(texInput: string, options = {}) {
         const output = parse(texInput);

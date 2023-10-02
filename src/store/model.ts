@@ -2,7 +2,7 @@ import { Action, Computed, Thunk } from "easy-peasy";
 import { ParseError } from "../async-worker/errors";
 import { VFile } from "vfile";
 import type * as Ast from "@unified-latex/unified-latex-types";
-import type * as Mdast from "mdast"
+import type * as Mdast from "mdast";
 
 type ActiveView =
     | "formatted"
@@ -36,8 +36,8 @@ export interface StoreModel {
     html: string;
     setHtml: Action<StoreModel, string>;
 
-    markdown: Mdast.Root;
-    setMarkdown: Action<StoreModel, Mdast.Root>;
+    markdown: string;
+    setMarkdown: Action<StoreModel, string>;
 
     parseError: ParseError | string | null;
     setParseError: Action<StoreModel, ParseError | string | null>;
