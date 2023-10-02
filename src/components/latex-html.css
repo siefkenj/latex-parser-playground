@@ -1,0 +1,29 @@
+
+.minipage {
+    text-align: left;
+}
+
+.section-paragraph {
+    font-size: unset;
+    margin-bottom: 0;
+    margin-top: unset;
+}
+.section-paragraph ~ p {
+    margin-top: .3em;
+}
+
+.phantom {
+    visibility: hidden;
+}
+
+.environment.example {
+    border-left: 5px solid rgb(0, 0, 200);
+    background-color: rgba(0,0,0,.05);
+    padding-left: 5px;
+}
+
+.environment.theorem {
+    border-left: 5px solid rgb(100, 0, 200);
+    background-color: rgba(0,0,0,.05);
+    padding-left: 5px;
+}

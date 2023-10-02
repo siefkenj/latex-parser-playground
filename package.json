@@ -4,67 +4,60 @@
     "private": true,
     "homepage": "./",
     "dependencies": {
-        "@codemirror/lang-html": "^6.4.6",
+        "@codemirror/lang-html": "6.4.6",
         "@codemirror/lang-javascript": "^6.2.1",
         "@codemirror/lang-json": "^6.0.1",
-        "@codemirror/language": "^6.9.0",
+        "@codemirror/lang-markdown": "^6.2.1",
+        "@codemirror/language": "^6.9.1",
         "@codemirror/legacy-modes": "^6.3.3",
-        "@codemirror/view": "^6.17.1",
-        "@testing-library/jest-dom": "^5.16.5",
-        "@testing-library/react": "^13.4.0",
-        "@testing-library/user-event": "^14.4.3",
-        "@types/katex": "^0.16.2",
-        "@uiw/react-codemirror": "^4.21.13",
-        "@unified-latex/unified-latex-lint": "^1.4.1",
-        "@unified-latex/unified-latex-prettier": "^1.4.1",
-        "@unified-latex/unified-latex-to-hast": "^1.4.1",
-        "@unified-latex/unified-latex-util-parse": "^1.4.1",
-        "@unified-latex/unified-latex-util-pegjs": "^1.4.0",
-        "@unified-latex/unified-latex-util-pgfkeys": "^1.4.0",
-        "@unified-latex/unified-latex-util-print-raw": "^1.4.0",
-        "@unified-latex/unified-latex-util-replace": "^1.4.0",
-        "@unified-latex/unified-latex-util-split": "^1.4.0",
+        "@codemirror/view": "^6.21.0",
+        "@types/katex": "^0.16.3",
+        "@uiw/react-codemirror": "^4.21.18",
+        "@unified-latex/unified-latex-lint": "^1.5.0",
+        "@unified-latex/unified-latex-prettier": "^2.4.2",
+        "@unified-latex/unified-latex-to-hast": "^1.5.0",
+        "@unified-latex/unified-latex-to-mdast": "^1.5.0",
+        "@unified-latex/unified-latex-util-parse": "^1.4.2",
+        "@unified-latex/unified-latex-util-pegjs": "^1.4.2",
+        "@unified-latex/unified-latex-util-pgfkeys": "^1.4.2",
+        "@unified-latex/unified-latex-util-print-raw": "^1.4.2",
+        "@unified-latex/unified-latex-util-replace": "^1.4.2",
+        "@unified-latex/unified-latex-util-split": "^1.4.2",
         "color": "^4.2.3",
         "comlink": "^4.4.1",
-        "easy-peasy": "^5.2.0",
+        "easy-peasy": "^6.0.3",
         "globalthis": "^1.0.3",
         "katex": "^0.16.8",
+        "mdast-util-to-markdown": "^2.1.0",
+        "mdast-util-to-string": "^4.0.0",
+        "parse-entities": "^4.0.1",
         "pegjs": "0.10.0",
         "prettier": "^2.8.8",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
-        "react-scripts": "^5.0.1",
-        "react-select": "^5.7.0",
+        "react-markdown": "^9.0.0",
+        "react-select": "^5.7.5",
         "react-split-pane": "github:techfreaque/react-split-pane",
-        "typescript": "^4.9.5",
+        "rehype-katex": "^7.0.0",
+        "remark-gfm": "^4.0.0",
+        "remark-math": "^6.0.0",
+        "remark-stringify": "^10.0.3",
         "unified": "^10.1.2",
-        "vfile": "^5.3.6",
-        "web-vitals": "^3.1.1",
-        "worker-loader": "^3.0.8",
-        "workerize-loader": "^2.0.2"
+        "vfile": "^6.0.1",
+        "web-vitals": "^3.5.0"
+    },
+    "devDependencies": {
+        "@vitejs/plugin-react": "^4.1.0",
+        "typescript": "^5.2.2",
+        "vite": "^4.4.9",
+        "vite-plugin-svgr": "^4.1.0",
+        "vite-tsconfig-paths": "^4.2.1"
     },
     "scripts": {
-        "start": "react-scripts start",
-        "build": "react-scripts build",
-        "test": "react-scripts test",
-        "eject": "react-scripts eject"
+        "start": "vite",
+        "build": "vite build"
     },
-    "eslintConfig": {
-        "extends": [
-            "react-app",
-            "react-app/jest"
-        ]
-    },
-    "browserslist": {
-        "production": [
-            ">0.2%",
-            "not dead",
-            "not op_mini all"
-        ],
-        "development": [
-            "last 1 chrome version",
-            "last 1 firefox version",
-            "last 1 safari version"
-        ]
+    "prettier": {
+        "tabWidth": 4
     }
 }

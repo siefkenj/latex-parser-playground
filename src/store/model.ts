@@ -1,9 +1,17 @@
 import { Action, Computed, Thunk } from "easy-peasy";
 import { ParseError } from "../async-worker/errors";
 import { VFile } from "vfile";
-import * as Ast from "@unified-latex/unified-latex-types";
+import type * as Ast from "@unified-latex/unified-latex-types";
+import type * as Mdast from "mdast";
 
-type ActiveView = "formatted" | "ast" | "json" | "doc" | "debug" | "html";
+type ActiveView =
+    | "formatted"
+    | "ast"
+    | "json"
+    | "doc"
+    | "debug"
+    | "html"
+    | "markdown";
 
 export interface StoreModel {
     activeView: ActiveView;
@@ -27,6 +35,9 @@ export interface StoreModel {
 
     html: string;
     setHtml: Action<StoreModel, string>;
+
+    markdown: string;
+    setMarkdown: Action<StoreModel, string>;
 
     parseError: ParseError | string | null;
     setParseError: Action<StoreModel, ParseError | string | null>;

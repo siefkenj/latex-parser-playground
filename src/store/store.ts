@@ -57,6 +57,12 @@ export const store = createStore<StoreModel>({
                 case "html":
                     const html = await parsingWorker.formatAsHtml(editorText);
                     actions.setHtml(html);
+                    break;
+                case "markdown":
+                    const markdown = await parsingWorker.formatAsMarkdown(
+                        editorText
+                    );
+                    actions.setMarkdown(markdown as any);
             }
             const lintMessages = await parsingWorker.getLints(editorText);
             actions.setLints(lintMessages);
@@ -84,6 +90,10 @@ export const store = createStore<StoreModel>({
     html: "",
     setHtml: action((state, payload) => {
         state.html = payload;
+    }),
+    markdown: "",
+    setMarkdown: action((state, payload) => {
+        state.markdown = payload;
     }),
     applyLints: false,
     setApplyLints: action((state, payload) => {

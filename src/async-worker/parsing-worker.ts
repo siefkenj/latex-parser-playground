@@ -3,9 +3,15 @@ import * as Ast from "@unified-latex/unified-latex-types";
 // @ts-ignore
 import Prettier from "prettier/esm/standalone.mjs";
 import { prettierPluginLatex } from "@unified-latex/unified-latex-prettier";
-import { parse } from "@unified-latex/unified-latex-util-parse";
+import {
+    parse,
+    unifiedLatexFromString,
+} from "@unified-latex/unified-latex-util-parse";
 import { convertToHtml } from "@unified-latex/unified-latex-to-hast";
+import { unifiedLatexToMdast } from "@unified-latex/unified-latex-to-mdast";
 import { decorateArrayForPegjs } from "@unified-latex/unified-latex-util-pegjs";
+import { unified } from "unified";
+import { toMarkdown } from "mdast-util-to-markdown";
 
 // @ts-ignore
 import peg from "pegjs";
@@ -82,6 +88,15 @@ const exposed = {
     formatAsHtml(texInput: string, options = {}) {
         let output = parse(texInput);
         return convertToHtml(output);
+    },
+    formatAsMarkdown(texInput: string, options = {}) {
+        let ast = unified()
+            .use(unifiedLatexFromString)
+            .use(unifiedLatexToMdast).parse( texInput);
+        let mdast = unified().use(unifiedLatexToMdast).runSync(ast);
+        let output= toMarkdown(mdast as any);
+        //console.log(output, mdast)
+        return output;
     },
     parse(texInput: string, options = {}) {
         const output = parse(texInput);
