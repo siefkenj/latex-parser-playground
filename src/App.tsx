@@ -14,6 +14,8 @@ import { JsonDisplay } from "./components/json-display";
 import { PrettierDocDisplay } from "./components/prettier-doc-display";
 import { MarkdownView } from "./components/markdown-view";
 
+declare const __UNIFIED_LATEX_VERSION__: string;
+
 function App() {
     const currDisplay = useStoreState((state) => state.activeView);
     const setCurrDisplay = useStoreActions((a) => a.setActiveView);
@@ -109,6 +111,10 @@ function App() {
                         }}
                     />
                 </label>
+                <span className="info">
+                    <code>unified-latex</code>:{" "}
+                    <code>{__UNIFIED_LATEX_VERSION__}</code>
+                </span>
             </div>
             <div className="tex-section">
                 <SplitPane split="vertical" minSize={200} defaultSize="50%">

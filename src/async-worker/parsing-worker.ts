@@ -17,6 +17,7 @@ import { toMarkdown } from "mdast-util-to-markdown";
 import peg from "pegjs";
 
 // Needed to print the prettier Doc
+// @ts-ignore
 import prettierPluginBabel from "prettier/parser-babel";
 // @ts-ignore
 //import globalthisgenrator from "globalthis";

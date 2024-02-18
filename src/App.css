@@ -14,6 +14,8 @@ body,
 
 .options-bar {
     position: relative;
+    display: flex;
+    gap: 0.5em;
 }
 .tex-section {
     flex-grow: 1;
@@ -190,4 +192,12 @@ ul.lints {
     width: 100%;
     height: 100%;
     flex: 1 1 auto;
+}
+
+.options-bar .info {
+    font-size: small;
+    color: #666;
+    align-self: flex-end;
+    margin-left: auto;
+    margin-right: 0.5em;
 }
